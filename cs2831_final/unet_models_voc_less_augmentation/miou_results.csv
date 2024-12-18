@@ -1,0 +1,9 @@
+Model,Mean_IoU
+Batch U-Net Class Weights,0.079273514
+U-Net Class Weights,0.03453583
+LayerNorm U-Net Class Weights,0.036452807
+Pretrained U-Net Class Weights,0.11658703
+Batch U-Net Foreground/Background Weights,0.1803569
+U-Net Foreground/Background Weights,0.08611402
+LayerNorm U-Net Foreground/Background Weights,0.0741919
+Pretrained U-Net Foreground/Background Weights,0.26204354

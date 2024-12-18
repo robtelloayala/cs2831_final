@@ -1,0 +1,4 @@
+Model,Mean_IoU
+Batch FCN,0.74619174
+FCN,0.7200498
+LayerNorm FCN,0.70449036

@@ -1,0 +1,4 @@
+,Model,Val Loss,Val Accuracy
+0,training_history_fcn,0.2985463142395019,0.8948381543159485
+1,training_history_fcn_norm,0.3252993524074554,0.8876394033432007
+2,training_history_fcn_batch,0.3349186480045318,0.9043739438056946

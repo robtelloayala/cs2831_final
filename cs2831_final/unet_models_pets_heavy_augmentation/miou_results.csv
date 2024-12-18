@@ -1,0 +1,5 @@
+Model,Mean_IoU
+Batch UNet,0.7169983
+UNet,0.65777695
+LayerNorm UNet,0.6574744
+UNet with Pretrained encoder,0.7344555

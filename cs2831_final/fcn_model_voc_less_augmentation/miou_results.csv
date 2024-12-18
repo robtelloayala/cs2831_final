@@ -1,0 +1,7 @@
+Model,Mean_IoU
+Batch FCN Class Weights,0.096402735
+FCN Class Weights,0.07627062
+LayerNorm FCN Class Weights,0.021801323
+Batch FCN Foreground/Background Weights,0.17535807
+FCN Foreground/Background Weights,0.13627031
+LayerNorm FCN Foreground/Background Weights,0.109154485

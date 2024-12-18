@@ -1,0 +1,10 @@
+,Model,Val Loss,Val Accuracy
+0,training_history_pretrained_unet,1.425757646560669,0.3609110116958618
+1,training_history_batch_unet,1.4404444694519043,0.1827850341796875
+2,training_history_unet,1.5417943000793457,0.152920663356781
+3,training_history_norm_unet,1.5435236692428589,0.1476684957742691
+4,training_history_pretrained_unet_no_weights,1.6208913326263428,0.7586418986320496
+5,training_history_batch_unet_no_weights_03,1.6385878324508667,0.7151520848274231
+6,training_history_batch_unet_no_weights,1.741093397140503,0.7167910933494568
+7,training_history_unet_no_weights,1.8251564502716064,0.6992010474205017
+8,training_history_norm_unet_no_weights,1.839266061782837,0.7049442529678345

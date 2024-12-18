@@ -1,0 +1,5 @@
+,Model,Val Loss,Val Accuracy
+0,training_history_pretrained_unet,0.2840730845928192,0.8986070156097412
+1,training_history_batch_unet,0.3069628477096557,0.8908624053001404
+2,training_history_unet,0.3649879395961761,0.8594973087310791
+3,training_history_layernorm_unet,0.3790895342826843,0.8598977327346802
