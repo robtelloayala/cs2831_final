@@ -94,7 +94,6 @@ The following scripts train various model architectures (FCN, U-Net) with differ
 
 **Model Definitions & Utilities:**
 - `FCN_models.py` : FCN model definitions
-- `simple_unet.py` : U-Net in PyTorch
 - `unet_models.py` : U-Net model definitions
 
 **Training & Preprocessing:**
