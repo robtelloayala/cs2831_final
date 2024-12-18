@@ -1,13 +1,10 @@
 from tensorflow.keras.models import Model
-import tensorflow_addons as tfa
-from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate, Dropout, BatchNormalization
-from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
-from tensorflow.keras.callbacks import ReduceLROnPlateau
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate, Dropout, BatchNormalization, LayerNormalization
 import tensorflow as tf
-from tensorflow.keras.layers import Lambda
+#from tensorflow.keras.layers import Lambda
 
 # unet from scratch
-def unet_model(input_size=(128, 128, 1)):
+def unet_model(input_size=(128, 128, 1), output_channels=3):
     inputs = Input(input_size)
     
     # Encoder
@@ -61,7 +58,7 @@ def unet_model(input_size=(128, 128, 1)):
     c9 = Conv2D(64, (3, 3), activation='relu', padding='same')(c9)
     c9 = Dropout(0.1)(c9)
     
-    outputs = Conv2D(1, (1, 1), activation='sigmoid')(c9)
+    outputs = Conv2D(output_channels, (1, 1), activation='softmax')(c9)
     
     model = Model(inputs=[inputs], outputs=[outputs])
     
@@ -69,7 +66,7 @@ def unet_model(input_size=(128, 128, 1)):
 
 # unet with batch normalization
 
-def unet_model(input_size=(128, 128, 1)):
+def unet_model_batch(input_size=(128, 128, 3), output_channels=3):
     inputs = Input(input_size)
     
     # Encoder
@@ -141,25 +138,98 @@ def unet_model(input_size=(128, 128, 1)):
     c9 = BatchNormalization()(c9)
     c9 = Dropout(0.1)(c9)
     
-    outputs = Conv2D(1, (1, 1), activation='sigmoid')(c9)
+    outputs = Conv2D(output_channels, (1, 1), activation='softmax')(c9)
+    
+    model = Model(inputs=[inputs], outputs=[outputs])
+    
+    return model
+
+def unet_model_norm(input_size=(128, 128, 3),  output_channels=3):
+    inputs = Input(input_size)
+    
+    # Encoder
+    c1 = Conv2D(64, (3, 3), activation='relu', padding='same')(inputs)
+    c1 = LayerNormalization(epsilon=1e-6)(c1)
+    c1 = Conv2D(64, (3, 3), activation='relu', padding='same')(c1)
+    c1 = LayerNormalization(epsilon=1e-6)(c1)
+    p1 = MaxPooling2D((2, 2))(c1)
+    p1 = Dropout(0.1)(p1)
+    
+    c2 = Conv2D(128, (3, 3), activation='relu', padding='same')(p1)
+    c2 = LayerNormalization(epsilon=1e-6)(c2)
+    c2 = Conv2D(128, (3, 3), activation='relu', padding='same')(c2)
+    c2 = LayerNormalization(epsilon=1e-6)(c2)
+    p2 = MaxPooling2D((2, 2))(c2)
+    p2 = Dropout(0.1)(p2)
+    
+    c3 = Conv2D(256, (3, 3), activation='relu', padding='same')(p2)
+    c3 = LayerNormalization(epsilon=1e-6)(c3)
+    c3 = Conv2D(256, (3, 3), activation='relu', padding='same')(c3)
+    c3 = LayerNormalization(epsilon=1e-6)(c3)
+    p3 = MaxPooling2D((2, 2))(c3)
+    p3 = Dropout(0.2)(p3)
+    
+    c4 = Conv2D(512, (3, 3), activation='relu', padding='same')(p3)
+    c4 = LayerNormalization(epsilon=1e-6)(c4)
+    c4 = Conv2D(512, (3, 3), activation='relu', padding='same')(c4)
+    c4 = LayerNormalization(epsilon=1e-6)(c4)
+    p4 = MaxPooling2D((2, 2))(c4)
+    p4 = Dropout(0.2)(p4)
+    
+    # Bottleneck
+    c5 = Conv2D(1024, (3, 3), activation='relu', padding='same')(p4)
+    c5 = LayerNormalization(epsilon=1e-6)(c5)
+    c5 = Conv2D(1024, (3, 3), activation='relu', padding='same')(c5)
+    c5 = LayerNormalization(epsilon=1e-6)(c5)
+    c5 = Dropout(0.3)(c5)
+    
+    # Decoder
+    u6 = UpSampling2D((2, 2))(c5)
+    u6 = concatenate([u6, c4])
+    c6 = Conv2D(512, (3, 3), activation='relu', padding='same')(u6)
+    c6 = LayerNormalization(epsilon=1e-6)(c6)
+    c6 = Conv2D(512, (3, 3), activation='relu', padding='same')(c6)
+    c6 = LayerNormalization(epsilon=1e-6)(c6)
+    c6 = Dropout(0.2)(c6)
+    
+    u7 = UpSampling2D((2, 2))(c6)
+    u7 = concatenate([u7, c3])
+    c7 = Conv2D(256, (3, 3), activation='relu', padding='same')(u7)
+    c7 = LayerNormalization(epsilon=1e-6)(c7)
+    c7 = Conv2D(256, (3, 3), activation='relu', padding='same')(c7)
+    c7 = LayerNormalization(epsilon=1e-6)(c7)
+    c7 = Dropout(0.2)(c7)
+    
+    u8 = UpSampling2D((2, 2))(c7)
+    u8 = concatenate([u8, c2])
+    c8 = Conv2D(128, (3, 3), activation='relu', padding='same')(u8)
+    c8 = LayerNormalization(epsilon=1e-6)(c8)
+    c8 = Conv2D(128, (3, 3), activation='relu', padding='same')(c8)
+    c8 = LayerNormalization(epsilon=1e-6)(c8)
+    c8 = Dropout(0.1)(c8)
+    
+    u9 = UpSampling2D((2, 2))(c8)
+    u9 = concatenate([u9, c1])
+    c9 = Conv2D(64, (3, 3), activation='relu', padding='same')(u9)
+    c9 = LayerNormalization(epsilon=1e-6)(c9)
+    c9 = Conv2D(64, (3, 3), activation='relu', padding='same')(c9)
+    c9 = LayerNormalization(epsilon=1e-6)(c9)
+    c9 = Dropout(0.1)(c9)
+    
+    outputs = Conv2D(output_channels, (1, 1), activation='softmax')(c9)#'sigmoid')(c9)
     
     model = Model(inputs=[inputs], outputs=[outputs])
     
     return model
 
 # unet with pretrained encoder
-def unet_model_with_pretrained(input_size=(256, 256, 1)):
+def unet_model_with_pretrained(input_size=(128, 128, 3), output_channels=3):
     # Function to convert grayscale to 3-channel
-    def preprocess_input(x):
-        return tf.image.grayscale_to_rgb(x)
-    
+ 
     inputs = Input(shape=input_size)
-    
-    # Convert grayscale to 3-channel
-    preprocessed_inputs = Lambda(preprocess_input)(inputs)
-    
+ 
     # Load MobileNetV2 as the encoder
-    base_model = tf.keras.applications.MobileNetV2(input_shape=(256, 256, 3), include_top=False)
+    base_model = tf.keras.applications.MobileNetV2(input_shape=input_size, include_top=False)
     
     # Extract layers for skip connections
     layer_names = [
@@ -175,7 +245,7 @@ def unet_model_with_pretrained(input_size=(256, 256, 1)):
     encoder = Model(inputs=base_model.input, outputs=layers)
     
     # Get encoder outputs
-    encoder_outputs = encoder(preprocessed_inputs)
+    encoder_outputs = encoder(inputs)
     c1, c2, c3, c4, c5 = encoder_outputs
     
     # Decoder
@@ -218,7 +288,7 @@ def unet_model_with_pretrained(input_size=(256, 256, 1)):
     c10 = BatchNormalization()(c10)
     c10 = Dropout(0.1)(c10)
     
-    outputs = Conv2D(1, (1, 1), activation='sigmoid')(c10)
+    outputs = Conv2D(output_channels, (1, 1), activation='softmax')(c10)
     
     model = Model(inputs=[inputs], outputs=[outputs])
     
