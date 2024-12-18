@@ -130,16 +130,9 @@ unet_model_pretrained = unet_model(
 )
 
 def masked_weighted_sparse_categorical_crossentropy(y_true, y_pred, class_weights, ignore_class=255):
-    """
-    - Ignores pixels labeled `ignore_class` by zeroing out their loss.
-    - Also applies class_weights to handle imbalance.
-    
-    y_true: (batch, h, w) with values in [0..C-1] or 255.
-    y_pred: (batch, h, w, C) logits or probabilities.
-    class_weights: dict or list of length C (one weight per class).
-    """
+
     if len(y_true.shape) == 4 and y_true.shape[-1] == 1:
-        y_true = tf.squeeze(y_true, axis=-1)  # now shape is (batch, H, W)
+        y_true = tf.squeeze(y_true, axis=-1)  
 
     # Build the per-class weight vector
     num_classes = len(class_weights)
@@ -147,14 +140,14 @@ def masked_weighted_sparse_categorical_crossentropy(y_true, y_pred, class_weight
 
     # Convert cross-entropy to elementwise (reduction='none')
     scce = tf.keras.losses.SparseCategoricalCrossentropy(reduction='none')
-    ce_per_pixel = scce(y_true, y_pred)  # shape: (batch, h, w)
+    ce_per_pixel = scce(y_true, y_pred)  
 
     # Build valid_mask where label != ignore_class
-    valid_mask = tf.not_equal(y_true, ignore_class)  # shape: (batch, h, w)
+    valid_mask = tf.not_equal(y_true, ignore_class) 
 
     # Also gather the class weight for each pixel
-    y_true_clamped = tf.where(valid_mask, y_true, 0)  # replace 255 with 0 so gather won't break
-    pixel_class_weights = tf.gather(weights_vec, tf.cast(y_true_clamped, tf.int32))  # shape: (batch, h, w)
+    y_true_clamped = tf.where(valid_mask, y_true, 0)  
+    pixel_class_weights = tf.gather(weights_vec, tf.cast(y_true_clamped, tf.int32)) 
 
     # Weighted CE = ce_per_pixel * pixel_class_weights
     ce_per_pixel = ce_per_pixel * pixel_class_weights
